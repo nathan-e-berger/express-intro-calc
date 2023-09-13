@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 
 // useful error class to throw
-const { NotFoundError } = require("./expressError");
+const { NotFoundError, BadRequestError } = require("./expressError");
 
 const MISSING = "Expected key `nums` with comma-separated list of numbers.";
 
@@ -20,10 +20,19 @@ app.get("/mean", function (req, res) {
 })
 
 /** Finds median of nums in qs: returns {operation: "median", result } */
-
+app.get("/median", function (req, res){
+  let nums = req.query.nums.split(',').map(num => Number(num));
+  return res.json({"operation": "median", "value": findMedian(nums)});
+})
 
 /** Finds mode of nums in qs: returns {operation: "mean", result } */
-
+app.get("/mode", function (req, res){
+  if(!req.query.nums){
+    throw new BadRequestError("nums are required")
+  }
+  let nums = req.query.nums.split(',').map(num => Number(num));
+  return res.json({"operation": "mode", "value": findMode(nums)});
+})
 
 /** 404 handler: matches unmatched routes; raises NotFoundError. */
 app.use(function (req, res) {
